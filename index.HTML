@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAONAM DUAL TOOL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:#050b14;}
+#game{position:fixed;inset:0;width:100vw;height:100vh;border:none;z-index:1;}
+
+#tool1{
+  position:fixed;top:70px;left:20px;z-index:99999;
+  cursor:move;user-select:none;padding:12px;
+  width:260px;
+  background:linear-gradient(160deg,rgba(10,25,45,0.92),rgba(5,12,25,0.97));
+  border-radius:20px;
+  border:1.5px solid rgba(0,200,255,0.5);
+  box-shadow:0 0 25px rgba(0,200,255,0.4),0 0 55px rgba(0,200,255,0.2);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+
+#tool2{
+  position:fixed;top:70px;right:20px;z-index:99999;
+  cursor:move;user-select:none;padding:12px;
+  width:280px;
+  background:linear-gradient(160deg,rgba(10,20,40,0.92),rgba(5,10,25,0.97));
+  border-radius:20px;
+  border:1.5px solid rgba(30,120,220,0.55);
+  box-shadow:0 0 25px rgba(30,120,220,0.45),0 0 55px rgba(30,120,220,0.25);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+
+.toolName{
+  text-align:center;margin-bottom:10px;padding-bottom:8px;
+  position:relative;
+}
+#tool1 .toolName{border-bottom:1px dashed rgba(0,200,255,0.3);}
+#tool2 .toolName{border-bottom:1px dashed rgba(30,120,220,0.35);}
+.toolName::after{
+  content:'';position:absolute;bottom:-1px;left:50%;
+  transform:translateX(-50%);width:60px;height:2px;
+}
+#tool1 .toolName::after{
+  background:linear-gradient(90deg,transparent,#00c8ff,transparent);
+  box-shadow:0 0 10px #00c8ff;
+}
+#tool2 .toolName::after{
+  background:linear-gradient(90deg,transparent,#2a7fff,transparent);
+  box-shadow:0 0 10px #2a7fff;
+}
+.toolNameText{
+  font-size:12px;font-weight:900;letter-spacing:2.5px;
+  background-size:200% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shineName 3s linear infinite;
+}
+#tool1 .toolNameText{background-image:linear-gradient(90deg,#00c8ff,#00ff88,#00c8ff);}
+#tool2 .toolNameText{background-image:linear-gradient(90deg,#2a7fff,#00e5ff,#2a7fff);}
+@keyframes shineName{0%{background-position:0% 50%;}100%{background-position:200% 50%;}}
+
+.xBtn{
+  position:absolute;top:-10px;right:-10px;
+  width:24px;height:24px;border-radius:50%;
+  color:#fff;font-size:12px;font-weight:900;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;border:2px solid #0a1929;
+}
+#x1{background:linear-gradient(135deg,#00c8ff,#0088cc);box-shadow:0 0 12px rgba(0,200,255,0.8);}
+#x2{background:linear-gradient(135deg,#2a7fff,#0a4ab8);box-shadow:0 0 12px rgba(30,120,220,0.8);}
+
+#phienInputWrap{
+  margin-bottom:10px;padding:10px;
+  background:linear-gradient(160deg,rgba(6,18,36,0.85),rgba(2,8,18,0.95));
+  border-radius:12px;
+  border:1.5px solid rgba(30,120,220,0.4);
+  box-shadow:inset 0 0 15px rgba(30,120,220,0.1);
+}
+#phienInput{
+  width:100%;height:44px;border-radius:8px;
+  border:1.5px solid rgba(30,120,220,0.5);
+  background:rgba(0,0,0,0.55);
+  color:#7fdbff;font-size:22px;
+  font-family:'Courier New',monospace;
+  text-align:center;letter-spacing:8px;font-weight:900;
+  outline:none;box-sizing:border-box;
+  text-shadow:0 0 12px rgba(127,219,255,0.9);
+  transition:all .3s;
+}
+#phienInput:focus{
+  border-color:#2a7fff;
+  box-shadow:0 0 18px rgba(30,120,220,0.7),inset 0 0 15px rgba(30,120,220,0.2);
+}
+#phienInput::placeholder{color:rgba(127,219,255,0.3);letter-spacing:4px;font-size:14px;}
+.inputInfo{
+  display:flex;justify-content:space-between;
+  font-size:9px;color:#5b8cba;
+  margin-top:6px;letter-spacing:.5px;font-weight:700;
+}
+
+#analyzeBtn{
+  width:100%;padding:11px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#2a7fff,#00a8ff,#2a7fff);
+  background-size:200% 100%;
+  color:#fff;font-weight:900;font-size:12px;letter-spacing:2px;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(30,120,220,0.7),inset 0 0 10px rgba(255,255,255,0.2);
+  animation:shine 2s infinite;margin-bottom:10px;
+  text-shadow:0 0 5px rgba(255,255,255,0.6);
+}
+@keyframes shine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#analyzeBtn:active{transform:scale(.96);}
+
+#ketQuaWrap{
+  padding:10px;
+  background:linear-gradient(160deg,rgba(6,18,36,0.85),rgba(2,8,18,0.95));
+  border-radius:12px;
+  border:1.5px solid rgba(30,120,220,0.35);
+}
+#ketQuaTitle{
+  display:flex;justify-content:space-between;
+  font-size:9px;font-weight:900;
+  letter-spacing:1.5px;color:#5b8cba;margin-bottom:8px;
+}
+#ketQuaGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.kqCard{
+  border-radius:10px;padding:10px 8px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.kqCard.tai{
+  background:linear-gradient(160deg,rgba(0,60,180,0.3),rgba(0,30,90,0.5));
+  border:1.5px solid rgba(60,140,255,0.7);
+  box-shadow:0 0 15px rgba(60,140,255,0.3),inset 0 0 12px rgba(60,140,255,0.1);
+}
+.kqCard.xiu{
+  background:linear-gradient(160deg,rgba(60,100,180,0.2),rgba(30,50,90,0.4));
+  border:1.5px solid rgba(100,150,220,0.5);
+  box-shadow:0 0 15px rgba(100,150,220,0.2),inset 0 0 12px rgba(100,150,220,0.08);
+}
+.kqLabel{font-size:10px;font-weight:900;letter-spacing:1.5px;margin-bottom:5px;}
+.kqCard.tai .kqLabel{color:#5ba8ff;text-shadow:0 0 10px rgba(91,168,255,0.9);}
+.kqCard.xiu .kqLabel{color:#7fa8e0;text-shadow:0 0 10px rgba(127,168,224,0.9);}
+.kqPercent{font-size:22px;font-weight:900;font-family:'Courier New',monospace;margin-bottom:5px;}
+.kqCard.tai .kqPercent{color:#5ba8ff;text-shadow:0 0 15px rgba(91,168,255,1);}
+.kqCard.xiu .kqPercent{color:#7fa8e0;text-shadow:0 0 15px rgba(127,168,224,1);}
+.kqBar{height:4px;border-radius:10px;background:rgba(0,0,0,0.5);overflow:hidden;}
+.kqBarFill{height:100%;border-radius:10px;transition:width .8s ease;}
+.kqCard.tai .kqBarFill{background:linear-gradient(90deg,#1e6fff,#5ba8ff);box-shadow:0 0 8px #5ba8ff;}
+.kqCard.xiu .kqBarFill{background:linear-gradient(90deg,#5a7fc0,#7fa8e0);box-shadow:0 0 8px #7fa8e0;}
+
+.robotRow{
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;position:relative;padding:10px;
+  border-radius:16px;transition:all .3s;
+}
+#tool1 .robotRow{
+  background:linear-gradient(160deg,rgba(6,18,36,0.7),rgba(2,8,18,0.85));
+  border:1.5px solid rgba(0,200,255,0.35);
+}
+#tool1.tai .robotRow{animation:flashGreen 0.8s infinite;}
+@keyframes flashGreen{
+  0%,100%{border-color:rgba(0,200,255,0.4);box-shadow:0 0 20px rgba(0,255,120,0.35);}
+  50%{border-color:#00ff88;box-shadow:0 0 40px rgba(0,255,120,0.9),0 0 75px rgba(0,255,120,0.5);}
+}
+#tool1.xiu .robotRow{animation:flashRed 0.8s infinite;}
+@keyframes flashRed{
+  0%,100%{border-color:rgba(0,200,255,0.4);box-shadow:0 0 20px rgba(255,42,79,0.35);}
+  50%{border-color:#ff2a4f;box-shadow:0 0 40px rgba(255,42,79,0.9),0 0 75px rgba(255,42,79,0.5);}
+}
+
+.circleBtn{
+  width:56px;height:56px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,0.3);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:10.5px;font-weight:900;
+  text-shadow:0 0 8px rgba(255,255,255,0.95);
+  transition:all .3s;opacity:.45;flex-shrink:0;
+}
+.circleTai{
+  background:radial-gradient(circle at 32% 32%,#7dffbe,#00a844);
+  box-shadow:0 0 18px rgba(0,255,120,0.55),inset 0 3px 0 rgba(255,255,255,0.35);
+}
+.circleXiu{
+  background:radial-gradient(circle at 32% 32%,#ff7d99,#c40d2e);
+  box-shadow:0 0 18px rgba(255,42,79,0.55),inset 0 3px 0 rgba(255,255,255,0.35);
+}
+.circleBtn.active{opacity:1;}
+.circleTai.active{animation:circleGreen 0.7s infinite;}
+@keyframes circleGreen{
+  0%,100%{box-shadow:0 0 22px rgba(0,255,120,0.9),0 0 45px rgba(0,255,120,0.5),inset 0 3px 0 rgba(255,255,255,0.45);transform:scale(1.05);}
+  50%{box-shadow:0 0 40px rgba(0,255,120,1),0 0 80px rgba(0,255,120,0.8),inset 0 3px 0 rgba(255,255,255,0.6);transform:scale(1.12);}
+}
+.circleXiu.active{animation:circleRed 0.7s infinite;}
+@keyframes circleRed{
+  0%,100%{box-shadow:0 0 22px rgba(255,42,79,0.9),0 0 45px rgba(255,42,79,0.5),inset 0 3px 0 rgba(255,255,255,0.45);transform:scale(1.05);}
+  50%{box-shadow:0 0 40px rgba(255,42,79,1),0 0 80px rgba(255,42,79,0.8),inset 0 3px 0 rgba(255,255,255,0.6);transform:scale(1.12);}
+}
+
+.centerLogo{
+  width:76px;height:76px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;flex-shrink:0;overflow:hidden;
+  background:radial-gradient(circle,#0a2845,#03060f);
+  border:2.5px solid rgba(0,200,255,0.85);
+  box-shadow:0 0 25px rgba(0,200,255,0.75),inset 0 0 18px rgba(0,200,255,0.35);
+}
+.centerLogo img{width:62px;height:62px;border-radius:50%;object-fit:cover;filter:drop-shadow(0 0 10px rgba(0,200,255,0.9));z-index:2;}
+.centerLogo::before{
+  content:'';position:absolute;width:94px;height:94px;
+  border-radius:50%;border:1.5px dashed rgba(0,200,255,0.6);
+  animation:rotateRing 6s linear infinite;z-index:1;
+}
+@keyframes rotateRing{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.centerPulse{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:11px;height:11px;border-radius:50%;
+  background:#00ff88;box-shadow:0 0 15px #00ff88,0 0 30px #00ff88;
+  animation:centerBlink 1s infinite;z-index:4;pointer-events:none;
+}
+#tool1.xiu .centerPulse{background:#ff2a4f;box-shadow:0 0 15px #ff2a4f,0 0 30px #ff2a4f;}
+@keyframes centerBlink{
+  0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  50%{opacity:.3;transform:translate(-50%,-50%) scale(1.8);}
+}
+
+.infoBottom{margin-top:10px;display:flex;align-items:center;gap:6px;justify-content:flex-start;}
+
+.infoBox{
+  padding:7px 10px;border-radius:9px;
+  position:relative;overflow:hidden;min-width:78px;text-align:center;
+  background:linear-gradient(160deg,rgba(10,25,45,0.95),rgba(5,12,25,0.98));
+  border:1.5px solid rgba(0,200,255,0.55);
+  box-shadow:0 0 12px rgba(0,200,255,0.4);
+}
+.infoBox::before{
+  content:'';position:absolute;top:0;left:-100%;
+  width:100%;height:1.5px;
+  background:linear-gradient(90deg,transparent,#00c8ff,transparent);
+  animation:infoScan 2s linear infinite;
+}
+@keyframes infoScan{0%{left:-100%}100%{left:100%}}
+.infoLabel{font-size:7.5px;letter-spacing:1.2px;font-weight:900;margin-bottom:2px;color:#5b8cba;}
+.infoValue{color:#7fdbff;font-size:13px;font-weight:900;letter-spacing:1px;text-shadow:0 0 8px rgba(127,219,255,0.9);}
+.confBox .infoValue{font-size:14px;}
+.confBox .infoValue.tai{color:#00ff88;text-shadow:0 0 10px rgba(0,255,120,0.9);}
+.confBox .infoValue.xiu{color:#ff6688;text-shadow:0 0 10px rgba(255,102,136,0.9);}
+.resultBox .infoValue.tai{color:#00ff88;}
+.resultBox .infoValue.xiu{color:#ff6688;}
+
+.toggleBtn{
+  position:fixed;bottom:20px;z-index:99999;
+  padding:10px 16px;border-radius:10px;
+  font-size:11.5px;font-weight:900;letter-spacing:1.2px;cursor:pointer;
+  transition:transform .2s;
+}
+#toggle1{
+  left:20px;border:1.5px solid #00c8ff;
+  background:linear-gradient(135deg,rgba(6,18,36,0.9),rgba(2,8,18,0.98));
+  color:#7fdbff;box-shadow:0 0 20px rgba(0,200,255,0.7);
+}
+#toggle2{
+  right:20px;border:1.5px solid #2a7fff;
+  background:linear-gradient(135deg,rgba(10,20,40,0.9),rgba(5,10,25,0.98));
+  color:#5ba8ff;box-shadow:0 0 20px rgba(30,120,220,0.7);
+}
+.toggleBtn:active{transform:scale(.94);}
+</style>
+</head>
+<body>
+
+<iframe id="game" src="https://lc79.bet"></iframe>
+
+<div id="tool1" class="tai">
+  <div class="xBtn" id="x1">✕</div>
+
+  <div class="toolName">
+    <div class="toolNameText">⚡ TOOL LC79 🦀</div>
+  </div>
+
+  <div class="robotRow">
+    <div class="circleBtn circleTai active" id="tai1">TÀI</div>
+    <div class="centerLogo">
+      <img src="https://files.catbox.moe/ng8pg8.jfif" alt="LC79" onerror="this.style.display='none'">
+      <div class="centerPulse"></div>
+    </div>
+    <div class="circleBtn circleXiu" id="xiu1">XỈU</div>
+  </div>
+
+  <div class="infoBottom">
+    <div class="infoBox">
+      <div class="infoLabel">PHIÊN</div>
+      <div class="infoValue" id="phien1">#------</div>
+    </div>
+    <div class="infoBox confBox">
+      <div class="infoLabel">TIN CẬY</div>
+      <div class="infoValue tai" id="conf1">--%</div>
+    </div>
+    <div class="infoBox resultBox">
+      <div class="infoLabel">KẾT QUẢ</div>
+      <div class="infoValue tai" id="result1">TÀI</div>
+    </div>
+  </div>
+</div>
+
+<div id="tool2">
+  <div class="xBtn" id="x2">✕</div>
+
+  <div class="toolName">
+    <div class="toolNameText">⚡ LE MINH TOOL</div>
+  </div>
+
+  <div id="phienInputWrap">
+    <input id="phienInput" type="text" inputmode="numeric" maxlength="7" placeholder="0000000">
+    <div class="inputInfo">
+      <span id="phienCount">0/7</span>
+      <span>PHÂN TÍCH</span>
+    </div>
+  </div>
+
+  <button id="analyzeBtn">⚡ PHÂN TÍCH</button>
+
+  <div id="ketQuaWrap">
+    <div id="ketQuaTitle">
+      <span>KẾT QUẢ</span>
+      <span>LC79</span>
+    </div>
+    <div id="ketQuaGrid">
+      <div class="kqCard tai" id="kqTai">
+        <div class="kqLabel">TÀI</div>
+        <div class="kqPercent" id="kqTaiPercent">--%</div>
+        <div class="kqBar"><div class="kqBarFill" id="kqTaiBar" style="width:0%"></div></div>
+      </div>
+      <div class="kqCard xiu" id="kqXiu">
+        <div class="kqLabel">XỈU</div>
+        <div class="kqPercent" id="kqXiuPercent">--%</div>
+        <div class="kqBar"><div class="kqBarFill" id="kqXiuBar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button id="toggle1" class="toggleBtn">⚡ LẨU CUA</button>
+<button id="toggle2" class="toggleBtn">LE MINH</button>
+
+<script>
+const tool1=document.getElementById("tool1");
+const tool2=document.getElementById("tool2");
+const tai1=document.getElementById("tai1");
+const xiu1=document.getElementById("xiu1");
+const phien1=document.getElementById("phien1");
+const conf1=document.getElementById("conf1");
+const result1=document.getElementById("result1");
+const x1=document.getElementById("x1");
+const x2=document.getElementById("x2");
+const toggle1=document.getElementById("toggle1");
+const toggle2=document.getElementById("toggle2");
+
+const phienInput=document.getElementById("phienInput");
+const phienCount=document.getElementById("phienCount");
+const analyzeBtn=document.getElementById("analyzeBtn");
+const kqTaiPercent=document.getElementById("kqTaiPercent");
+const kqXiuPercent=document.getElementById("kqXiuPercent");
+const kqTaiBar=document.getElementById("kqTaiBar");
+const kqXiuBar=document.getElementById("kqXiuBar");
+const kqTai=document.getElementById("kqTai");
+const kqXiu=document.getElementById("kqXiu");
+
+const API_URL="https://wtxmd52.tele68.com/v1/txmd5/sessions";
+const API_PROXY="https://api.allorigins.win/raw?url=";
+const POLL=2500;
+
+let v1=true,v2=true;
+x1.addEventListener("click",()=>{v1=false;tool1.style.display="none";toggle1.textContent="⚡ HIỆN";});
+x2.addEventListener("click",()=>{v2=false;tool2.style.display="none";toggle2.textContent="HIỆN";});
+toggle1.addEventListener("click",()=>{v1=!v1;tool1.style.display=v1?"block":"none";toggle1.textContent=v1?"⚡ LẨU CUA":"⚡ HIỆN";});
+toggle2.addEventListener("click",()=>{v2=!v2;tool2.style.display=v2?"block":"none";toggle2.textContent=v2?"LE MINH":"HIỆN";});
+
+function makeDrag(el,xBtnEl,extraEls){
+  let drag=false,ox=0,oy=0;
+  el.addEventListener("mousedown",e=>{
+    if(e.target===xBtnEl)return;
+    for(const ex of extraEls)if(e.target===ex)return;
+    drag=true;
+    const r=el.getBoundingClientRect();
+    ox=e.clientX-r.left;oy=e.clientY-r.top;
+  });
+  el.addEventListener("touchstart",e=>{
+    if(e.target===xBtnEl)return;
+    for(const ex of extraEls)if(e.target===ex)return;
+    const r=el.getBoundingClientRect();
+    const t=e.touches[0];
+    drag=true;
+    ox=t.clientX-r.left;oy=t.clientY-r.top;
+  },{passive:true});
+  document.addEventListener("mousemove",e=>{
+    if(!drag)return;
+    el.style.left=(e.clientX-ox)+"px";
+    el.style.top=(e.clientY-oy)+"px";
+    el.style.right="auto";
+  });
+  document.addEventListener("touchmove",e=>{
+    if(!drag)return;
+    const t=e.touches[0];
+    el.style.left=(t.clientX-ox)+"px";
+    el.style.top=(t.clientY-oy)+"px";
+    el.style.right="auto";
+    e.preventDefault();
+  },{passive:false});
+  document.addEventListener("mouseup",()=>drag=false);
+  document.addEventListener("touchend",()=>drag=false);
+}
+makeDrag(tool1,x1,[tai1,xiu1]);
+makeDrag(tool2,x2,[phienInput,analyzeBtn]);
+
+/* ============================================================
+   THUẬT TOÁN API - % CHIA ĐỀU 60-68-72-78-85
+   ============================================================ */
+function tinhToanAPI(history){
+  if(!history||history.length<10)return null;
+  const h=history.slice(0,30);
+  const n=h.length;
+
+  let cT=0,cX=0;
+  for(let i=0;i<n;i++){if(h[i]==="T")cT++;else cX++;}
+
+  let streak=1,sVal=h[0];
+  for(let i=1;i<n;i++){if(h[i]===sVal)streak++;else break;}
+
+  let alt=1;
+  for(let i=1;i<n;i++){
+    const e=(i%2===0)?sVal:(sVal==="T"?"X":"T");
+    if(h[i]===e)alt++;else break;
+  }
+
+  let c22=0;
+  for(let i=0;i<n-3;i++){
+    if(h[i]===h[i+1]&&h[i+2]===h[i+3]&&h[i]!==h[i+2])c22++;
+  }
+  let c33=0;
+  for(let i=0;i<n-5;i++){
+    if(h[i]===h[i+1]&&h[i+1]===h[i+2]&&h[i+3]===h[i+4]&&h[i+4]===h[i+5]&&h[i]!==h[i+3])c33++;
+  }
+  let c44=0;
+  for(let i=0;i<n-7;i++){
+    if(h[i]===h[i+1]&&h[i+1]===h[i+2]&&h[i+2]===h[i+3]&&
+       h[i+4]===h[i+5]&&h[i+5]===h[i+6]&&h[i+6]===h[i+7]&&
+       h[i]!==h[i+4])c44++;
+  }
+
+  const last5=h.slice(0,5);
+  const last5T=last5.filter(x=>x==="T").length;
+  const last5X=5-last5T;
+
+  const last10=h.slice(0,10);
+  const last10T=last10.filter(x=>x==="T").length;
+  const last10X=10-last10T;
+
+  const rT=cT/n;
+  const rX=cX/n;
+
+  let pred,conf;
+
+  /* Chia % theo từng loại cầu, đa dạng 60-85 */
+  if(c44>=1){
+    pred=h[0]==="T"?"X":"T";conf=85;
+  }
+  else if(c33>=1){
+    pred=h[0]==="T"?"X":"T";conf=82;
+  }
+  else if(streak>=10){
+    pred=sVal==="T"?"X":"T";conf=80;
+  }
+  else if(alt>=8){
+    pred=sVal;conf=78;
+  }
+  else if(streak>=8){
+    pred=sVal==="T"?"X":"T";conf=75;
+  }
+  else if(alt>=7){
+    pred=sVal;conf=72;
+  }
+  else if(streak>=6){
+    pred=sVal==="T"?"X":"T";conf=70;
+  }
+  else if(c22>=3){
+    pred=h[0]==="T"?"X":"T";conf=72;
+  }
+  else if(alt>=6){
+    pred=sVal;conf=68;
+  }
+  else if(streak>=5){
+    pred=sVal==="T"?"X":"T";conf=66;
+  }
+  else if(rT>=0.75){
+    pred="X";conf=68;
+  }
+  else if(rX>=0.75){
+    pred="T";conf=68;
+  }
+  else if(alt>=5){
+    pred=sVal;conf=64;
+  }
+  else if(c22>=2){
+    pred=h[0]==="T"?"X":"T";conf=62;
+  }
+  else if(streak>=4){
+    pred=sVal==="T"?"X":"T";conf=60;
+  }
+  else if(rT>=0.68){
+    pred="X";conf=64;
+  }
+  else if(rX>=0.68){
+    pred="T";conf=64;
+  }
+  else if(last10T>=8){
+    pred="X";conf=66;
+  }
+  else if(last10X>=8){
+    pred="T";conf=66;
+  }
+  else if(alt>=4){
+    pred=sVal;conf=62;
+  }
+  else if(last5T>=4){
+    pred="X";conf=60;
+  }
+  else if(last5X>=4){
+    pred="T";conf=60;
+  }
+  else if(streak===3){
+    pred=sVal==="T"?"X":"T";conf=58;
+  }
+  else if(rT>=0.62){
+    pred="X";conf=60;
+  }
+  else if(rX>=0.62){
+    pred="T";conf=60;
+  }
+  else if(last10T>=7){
+    pred="X";conf=62;
+  }
+  else if(last10X>=7){
+    pred="T";conf=62;
+  }
+  else if(alt>=3){
+    pred=sVal;conf=58;
+  }
+  else if(last5T>=3){
+    pred="X";conf=56;
+  }
+  else if(last5X>=3){
+    pred="T";conf=56;
+  }
+  else if(streak===2){
+    pred=sVal==="T"?"X":"T";conf=54;
+  }
+  else{
+    pred=h[0]==="T"?"X":"T";conf=52;
+  }
+
+  if(conf<50)conf=50;
+  if(conf>85)conf=85;
+  conf=Math.floor(conf);
+
+  return{pred,conf};
+}
+
+/* ============================================================
+   THUẬT TOÁN PHIÊN - CÂN BẰNG TÀI/XỈU, % 60-85
+   ============================================================ */
+function tinhToanPhien(input){
+  if(!input||input.length!==7)return null;
+  const d=[];
+  for(let i=0;i<7;i++)d.push(parseInt(input[i])||0);
+
+  /* Hash phiên đảm bảo cân bằng */
+  let hashVal=0;
+  for(let i=0;i<7;i++)hashVal=hashVal*23+d[i]*(i+1)*11;
+  hashVal=Math.abs(hashVal);
+
+  const tong=d.reduce((a,b)=>a+b,0);
+  const last=d[6];
+  const first=d[0];
+
+  let lon=0,nho=0,chan=0,le=0;
+  for(let i=0;i<7;i++){
+    if(d[i]>=5)lon++;else nho++;
+    if(d[i]%2===0)chan++;else le++;
+  }
+
+  let diemT=0,diemX=0;
+
+  /* Tổng chữ số */
+  if(tong>=30)diemT+=28;
+  else if(tong>=27)diemT+=20;
+  else if(tong>=24)diemT+=12;
+  else if(tong<=13)diemX+=28;
+  else if(tong<=16)diemX+=20;
+  else if(tong<=19)diemX+=12;
+  else{diemT+=5;diemX+=5;}
+
+  /* Chẵn lẻ tổng */
+  if(tong%2===0)diemT+=10;else diemX+=10;
+
+  /* Số cuối */
+  if(last>=5)diemT+=14;else diemX+=14;
+
+  /* Số đầu */
+  if(first>=5)diemT+=10;else diemX+=10;
+
+  /* Lớn nhỏ */
+  if(lon>=5)diemT+=18;
+  else if(lon>=4)diemT+=10;
+  else if(nho>=5)diemX+=18;
+  else if(nho>=4)diemX+=10;
+  else{diemT+=4;diemX+=4;}
+
+  /* Chẵn lẻ */
+  if(chan>=5)diemT+=12;
+  else if(chan>=4)diemT+=6;
+  else if(le>=5)diemX+=12;
+  else if(le>=4)diemX+=6;
+  else{diemT+=4;diemX+=4;}
+
+  /* Nửa đầu vs nửa sau */
+  const nua1=d.slice(0,3).reduce((a,b)=>a+b,0);
+  const nua2=d.slice(4,7).reduce((a,b)=>a+b,0);
+  if(nua1<nua2)diemT+=10;
+  else if(nua1>nua2)diemX+=10;
+  else{diemT+=4;diemX+=4;}
+
+  /* Số đặc biệt */
+  let s6=0,s1=0,s5=0,s4=0;
+  for(let i=0;i<7;i++){
+    if(d[i]===6)s6++;
+    if(d[i]===1)s1++;
+    if(d[i]===5)s5++;
+    if(d[i]===4)s4++;
+  }
+  if(s6>=2)diemT+=14;
+  else if(s6>=1)diemT+=6;
+  if(s1>=2)diemX+=14;
+  else if(s1>=1)diemX+=6;
+  if(s5>=2)diemT+=8;
+  if(s4>=2)diemX+=8;
+
+  /* Đối xứng */
+  if(d[0]===d[6])diemT+=8;else diemX+=4;
+  if(d[1]===d[5])diemX+=8;else diemT+=4;
+  if(d[2]===d[4])diemT+=8;else diemX+=4;
+
+  /* Cặp số liền */
+  let capT=0,capX=0;
+  for(let i=0;i<6;i++){
+    if(d[i]>=5&&d[i+1]>=5)capT++;
+    if(d[i]<=4&&d[i+1]<=4)capX++;
+  }
+  diemT+=capT*5;
+  diemX+=capX*5;
+
+  /* Tổng chẵn lẻ vị trí */
+  let tChan=0,tLe=0;
+  for(let i=0;i<7;i+=2)tChan+=d[i];
+  for(let i=1;i<7;i+=2)tLe+=d[i];
+  if(tChan>tLe)diemT+=10;
+  else if(tLe>tChan)diemX+=10;
+
+  /* Hash cân bằng */
+  diemT+=hashVal%30;
+  diemX+=(hashVal>>2)%30;
+
+  /* Random nhẹ */
+  diemT+=Math.floor(Math.random()*12);
+  diemX+=Math.floor(Math.random()*12);
+
+  const total=diemT+diemX||1;
+  let taiP=Math.floor(diemT*100/total);
+  let xiuP=100-taiP;
+
+  if(taiP<50)taiP=50;
+  if(taiP>85)taiP=85;
+  xiuP=100-taiP;
+
+  return{tai:taiP,xiu:xiuP};
+}
+
+async function fetchData(){
+  const urls=[API_URL,API_PROXY+encodeURIComponent(API_URL)];
+  for(const u of urls){
+    try{
+      const c=new AbortController();
+      const t=setTimeout(()=>c.abort(),4000);
+      const r=await fetch(u,{signal:c.signal,cache:"no-store"});
+      clearTimeout(t);
+      if(!r.ok)continue;
+      const j=await r.json();
+      if(j&&j.list&&j.list.length>0)return j;
+    }catch(e){}
+  }
+  return null;
+}
+
+let lastId=null;
+
+function renderTool1(data){
+  if(!data||!data.list||data.list.length<10)return;
+  const latest=data.list[0];
+  const next=String(Number(latest.id)+1);
+  phien1.textContent="#"+next;
+
+  if(lastId===latest.id)return;
+  lastId=latest.id;
+
+  const hist=data.list.map(item=>{
+    const r=(item.resultTruyenThong||"").toUpperCase();
+    return r==="TAI"?"T":r==="XIU"?"X":null;
+  }).filter(Boolean);
+
+  const kq=tinhToanAPI(hist);
+  if(!kq)return;
+
+  conf1.textContent=kq.conf+"%";
+
+  if(kq.pred==="T"){
+    tool1.className="tai";
+    tai1.classList.add("active");
+    xiu1.classList.remove("active");
+    result1.textContent="TÀI";
+    result1.className="infoValue tai";
+    conf1.className="infoValue tai";
+  } else {
+    tool1.className="xiu";
+    xiu1.classList.add("active");
+    tai1.classList.remove("active");
+    result1.textContent="XỈU";
+    result1.className="infoValue xiu";
+    conf1.className="infoValue xiu";
+  }
+}
+
+async function loopAPI(){
+  const d=await fetchData();
+  if(d)renderTool1(d);
+}
+loopAPI();
+setInterval(loopAPI,POLL);
+
+phienInput.addEventListener("input",()=>{
+  phienInput.value=phienInput.value.replace(/[^0-9]/g,"");
+  phienCount.textContent=phienInput.value.length+"/7";
+});
+
+analyzeBtn.addEventListener("click",()=>{
+  const input=phienInput.value.trim();
+  if(input.length!==7)return;
+
+  const kq=tinhToanPhien(input);
+  if(!kq)return;
+
+  kqTaiPercent.textContent=kq.tai+"%";
+  kqXiuPercent.textContent=kq.xiu+"%";
+  kqTaiBar.style.width=kq.tai+"%";
+  kqXiuBar.style.width=kq.xiu+"%";
+
+  if(kq.tai>kq.xiu){
+    kqTai.classList.add("active");
+    kqXiu.classList.remove("active");
+  } else {
+    kqXiu.classList.add("active");
+    kqTai.classList.remove("active");
+  }
+});
+</script>
+</body>
+</html>
